@@ -1,0 +1,7 @@
+---
+applications:
+- name : dkiotappmercury
+  instances : 1
+  memory : 256M
+services:
+- Internet of Things Platform-6v

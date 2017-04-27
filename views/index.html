@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html ng-app="dkiotappmercury">
+<head>
+  <title>LED Control</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.4.2/angular.js"></script>
+  <script src="javascripts/app.js" type="text/javascript"></script> <!-- not created yet -->
+</head>
+<body >
+  <div ng-controller="myController">
+    <p> </p>
+    <button ng-click="sendReq(1)">ON/OFF</button>
+    <button ng-click="sendReq(0)">STATUS</button>
+    <p> {{cmdType}} {{clientTimeStamp}}</p>
+    <p> {{response}} </p>
+  </div>
+</body>
+</html>

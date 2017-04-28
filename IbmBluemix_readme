@@ -1,0 +1,200 @@
+//////////////////////////////////////////////////////////
+//////////////Creating IBM Bluemix Account////////////////
+//////////////////////////////////////////////////////////
+www.ibm.com/bluemix
+login: kondru@gmail.com
+password: gmail pwd
+region: us south
+organization: kondru@gmail.com
+space : iotdev
+
+//////////////////////////////////////////////////////////
+////////////// Deploying nodejs app on Bluemix ///////////
+//////////////////////////////////////////////////////////
+First you need to install cloud foundry command line interface (cf cli)
+Refer https://docs.cloudfoundry.org/cf-cli/install-go-cli.html#mac
+>curl -L "https://cli.run.pivotal.io/stable?release=macosx64-binary&source=github" | tar -zx
+>mv cf /usr/local/bin
+>cf --version
+
+Once cf cli is installed to deploy your app:
+>cf api https://api.ng.bluemix.net
+>cf login -u kondru@gmail.com -o kondru@gmail.com -s iotdev
+It will prompt for password. Enter your bluemix pwd
+
+Refer https://www.ibm.com/developerworks/cloud/library/cl-raspberrypi-iot-remote-monitoring-app/index.html
+Download the code and put it at /Users/dkondru/Desktop/sw/full_stack/projects/IotApp
+Rename the app:
+>cd /Users/dkondru/Desktop/sw/full_stack/projects/IotApp
+>mv -f bluemixwebapp bluemixwebappdkondru
+>cd bluemixwebappdkondru
+>cf push bluemixwebappdkondru -m 128M
+This will run and create URL:
+bluemixwebappdkondru.mybluemix.net
+
+Copy-Paste the URL in your browser and you can see the your nodejs app deployed on IBM Bluemix!
+You can manage your app from the dashboard https://console.ng.bluemix.net/dashboard/apps
+
+//////////////////////////////////////////
+///////////////Raspberry Pi///////////////
+//////////////////////////////////////////
+Refer https://www.ibm.com/developerworks/cloud/library/cl-raspberrypi-iot-remote-monitoring-app/index.html
+>cd /Users/dkondru/Desktop/sw/full_stack/projects/IotApp/raspi/
+open monitortask.js and update the first line:
+var MonitoredBluemixURL = 'http://bluemixwebappdkondru.mybluemix.net//';
+
+Copy raspi directory to R-Pi device
+On Pi Enable SSH:
+Update Raspberry Pi>Preferences>R pi configuration > SSH > enable
+On Pi create scp_content directory at home/pi
+On Mac
+>cd /Users/dkondru/Desktop/sw/full_stack/projects/IotApp
+>scp -r raspi pi@192.168.0.11:scp_content/
+
+
+Creating a service and binding it to your app:
+Go to Bluemix dashboard and click on create service.
+click internet of things platform
+connect to: select the desired app. here it is "bluemixwebappdkondru"
+click on create.
+click on restage.
+click on "internet of things" square
+click Launch. It will launch a dashboard
+
+Registering the device:
+https://developer.ibm.com/recipes/tutorials/how-to-register-devices-in-ibm-iot-foundation/
+click on "device type" and add name "rasp2monitor"
+click next...next...and create.
+On your devices dashboard if you click device type you should see your device type.
+Now click on "add device" and choose your device type
+click next. Now enter device id = "euro001"
+(Device type and device ID should match what's entered in piclient.js)
+click next...next...add
+You will see the page with the below details
+Organization ID pm85g2
+Device Type rasp2monitor
+Device ID euro001
+Authentication Method token
+Authentication Token b8ewW@2KxFvfe3_FNh  <- device password correct
+
+API Key a-pm85g2-rnbmeolear
+Authentication Token CZ5wuF*iSXLym7NWdK <- wrong
+Modify piclient.js with auth token.
+
+MQTT broker:
+>sudo apt-get install mosquitto
+>sudo apt-get install mosquitto-clients
+configure mosquitto following instructions at
+http://www.switchdoc.com/2016/02/tutorial-installing-and-testing-mosquitto-mqtt-on-raspberry-pi/
+
+>sudo npm install mqtt
+Install phantomjs using https://www.bitpi.co/2015/02/10/installing-phantomjs-on-the-raspberry-pi/
+>sudo npm install -g casperjs
+>cd webmonitorapp
+>sudo npm install
+> node piclient.js
+
+
+////////////////
+////Spooky//////
+////////////////
+Refer to quick start code on
+https://github.com/SpookyJS/SpookyJS
+https://www.npmjs.com/package/spooky
+Refer to Spooky documentation on
+https://github.com/SpookyJS/SpookyJS/wiki/Introduction
+
+The sample code was copied to Pi and modified
+
+The below code toggles LED based on static title of the home page of web app
+/home/pi/webmonitorapp/spookyExample2.js
+>sudo node spookyExample1.js
+
+
+////////////MQTT//////////
+checks credentials:
+http://heidloff.net/article/useful-mqtt-tools-ibm-watson-iot-bluemix
+http://mqtt-helper.mybluemix.net/#collapseConnect
+
+To view bluemix credentials
+dashboard > app > runtime > Environment variables
+
+connect device to gateway:
+sudo node
+
+
+
+/////DEPLOY APP TO BLUEMIX/////////
+>cd /Users/dkondru/Desktop/sw/full_stack/projects/iotappmercury
+>cf -v
+>node -v
+>npm init
+Answer the questions and it will create package.json file
+Follow instructions here:
+https://www.coursera.org/learn/developer-iot/supplement/KvY14/application-development-for-bluemix-basic-server-step-by-step
+create server.js file and copy the code.
+>npm install express --save
+>npm start
+You should see the below messages
+iotappmercury@1.0.0 start /Users/dkondru/Desktop/sw/full_stack/projects/iotappmercury
+node server.js
+
+Listening at http://127.0.0.1:3000
+
+publish/subscribe protocol code APIs:
+https://www.npmjs.com/package/ibmiotf
+
+
+Common Issues with deploying app to cloud:
+
+check log file to find out the cause for any issue
+
+Port already in use:
+comment out the below lines in bin/www file
+//var port = normalizePort(process.env.PORT || '3000');
+//app.set('port', port);
+//server.listen(port);
+
+Debug by viewing developer console in browser
+
+wherever you access web servers convert http to https. Leave http wherever you create severs.
+change port from 80 to 443 for google finance api example to be compatible with https.
+
+To move local project to github (all git commands run from CWD)
+----------------------------------------------------------------
+github email: kondru@gmail.com username: nxn-matrix password: Dina1234
+Create a public repository on github
+on Mac
+>cd dkiotappmercury //current working directory
+>git init //it will create .git directory
+create .gitignore in current working directory and specify files/dirs that you want to ignore
+from cwd
+>git add --all //will add the dir recursively ignoring gitignore files/dirs
+>git remote add origin https://github.com/nxn-matrix/dkiotappmercury.git //will create destination path
+>git add README.md //readme file is required
+required for Pi:
+    git config --global user.email "kondru@gmail.com"
+    git config --global user.name "nxn-matrix"
+>git commit -m "first commit"
+>git push -u origin master
+
+To branch from repo update and merge (all git commands run from CWD)
+--------------------------------------------------------------------
+create a new branch "branch1" from "Branch:" dropdown menu on the dkiotappmercury repo main page
+>git fetch
+>git branch -v -a //lists all branches available for checkout
+>git checkout branch1
+
+After your work is done, assuming you modified <file1> and <file2>:
+>git add <file1> <file2>
+>git commit -m "second commit"
+>git push -u origin branch1
+You should see your branch1 has the file updated
+
+To merge branch1 to master:
+>git checkout master
+>git pull origin master
+>git merge branch1
+>git push origin master
+
+Each contributor can use a designated branch (branch1 for user1, branch2 for user2, etc) every time and merge to master when done.

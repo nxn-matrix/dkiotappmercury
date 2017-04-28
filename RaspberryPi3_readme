@@ -1,0 +1,147 @@
+///////////////////////////////////////////////////////
+//////GETTING SD CARD READY FOR RASPBERRY PI 3/////////
+///////////////////////////////////////////////////////
+
+Hardware requirements:
+MAC computer with SD Card reader
+Micro SD Card - Class 10 32GB
+
+1. Format micro SD Card to FAT32 following https://www.youtube.com/watch?v=UmIanMx1HDM
+
+2. Remove SD card from MAC and do
+>diskutil list
+You will see all the disks mounted
+
+3. Insert SD card into MAC and do
+>diskutil list
+You will notice SD card mount something like /dev/disk3.
+Size will tell you it is SD card.
+
+4. unmount SD Card
+>sudo diskutil unmountDisk /dev/disk3
+
+5. Copy raspbian image to SD Card
+raspbian img has to be downloaded from https://www.raspberrypi.org/downloads/raspbian/
+>sudo dd bs=1m if=~/Downloads/2017-03-02-raspbian-jessie.img of=/dev/disk3
+
+6. This takes 15 minutes or so. After it's done do
+>diskutil list
+You will notice about ~4GB of linux and ~70 MB of Windows_FAT_32 boot under /dev/disk3
+This means our copy is successful
+
+7. Eject the SD Card
+>sudo diskutil eject /dev/disk3
+
+//////////////////////////////////////////////////////////////////////////////
+///////////////BOOTING UP AND SETTING UP WIFI ON RASPBERRY PI 3///////////////
+//////////////////////////////////////////////////////////////////////////////
+
+Hardware requirements:
+HDMI Cable to connect to monitor
+mini-USB power cable (like android phone charger)
+USB connected Keyboard and Mouse
+FAT32 formatted SD card with Raspbian OS image
+WiFi
+
+1. Make sure mini-USB power cable is NOT hooked up.
+
+2. Insert the SD card into your Pi, connect monitor's HDMI out to Pi,
+   connect keyboard and mouse to Pi's USB slots.
+
+3. Connect mini-USB power cable. Pi should boot up.
+
+4. You can connect to WiFi by selecting your wifi network from top right wifi menu and entering your password.
+
+5. >sudo apt update
+   >sudo apt full-upgrade
+   For all SW updates. These 2 commands should be run together periodically.
+
+VNC server from Pi
+///////////////////////////////////////////////////////////////////////////////////////////
+///////////////HEADLESS PI: RUNNING VNCSERVER FROM PI AND VNC VIEWER FROM MAC//////////////
+///////////////////////////////////////////////////////////////////////////////////////////
+
+https://www.raspberrypi.org/documentation/remote-access/vnc/
+after installing latest updates of vnc server and viewer on pi
+do
+>hostname -I
+It will give the ip address: 192.168.0.11
+On your mac open vnc viewer and enter this ip address
+username = pi, password = raspberry (now changed to Dina1234)
+
+////////////////////////////////////////////////
+///////////////INSTAL NODEJS ON PI//////////////
+////////////////////////////////////////////////
+
+http://thisdavej.com/beginners-guide-to-installing-node-js-on-a-raspberry-pi/
+>sudo apt-get update (if it's not run earlier)
+>sudo apt-get install curl
+check the website what is the latest version available for linux debian
+>curl -sL https://deb.nodesource.com/setup_7.x | sudo -E bash -
+>sudo apt-get install nodejs
+>node -v
+>npm -v
+
+//////////////////////////////////////////////////////////
+///////////////RUN NODEJS TO BLINK LED ON PI//////////////
+//////////////////////////////////////////////////////////
+Pi Pin-mapping is here
+http://pi4j.com/pins/model-3b-rev1.html
+The bold numbers are the pin numbers used in wiringPi libraries.
+Connect LED to GPIO7 (pin 7).
+Configure GPIO4 (pin 4) as input to read status.
+
+Code and circuit copied from here
+http://www.instructables.com/id/JavaScript-for-IoT-Blinking-LED-on-Raspberry-Pi-Wi/
+>cd
+>git clone https://github.com/leon-anavi/rpi-nodejs-examples.git
+>cd rpi-nodejs-examples
+>npm install
+>sudo nodejs led/led.js
+wiringpi directory should be in node_modules for this to work
+LED should start blinking.
+
+
+Raspberry pi resolution setting:
+
+Pi > Preferences > Raspberry Pi Configuration > Set Resolution >
+DMT mode 82 1920x1080 60Hz 16:9
+
+
+//////////////////////////
+////////NODE-RED ON PI////
+//////////////////////////
+Refer https://github.com/node-red/node-red
+>sudo npm install -g node-red
+>node-red
+It will generate some messages. Find this message:
+Server now running at http://127.0.0.1:1880/
+Open the URL from Browser in Pi
+
+If this runs into some problem you can download the latest node-red and install:
+>git clone https://github.com/node-red/node-red.git
+>cd node-red
+>npm install
+>node-red
+
+To install new nodes:
+All available nodes - https://flows.nodered.org/
+
+Install IBM Watson IOT input and output nodes
+Refer https://flows.nodered.org/node/node-red-contrib-ibm-watson-iot
+>cd ~/.node-red
+>npm install node-red-contrib-ibm-watson-iot
+
+Install serial port node
+Refer https://flows.nodered.org/node/node-red-node-serialport
+>cd ~/.node-red
+>npm install node-red-node-serialport
+
+Install Network ping node
+http://flows.nodered.org/node/node-red-node-ping
+>cd ~/.node-red
+>npm install node-red-node-ping
+
+///////////////End-to-End Solution/////////////
+https://www.ibm.com/developerworks/cloud/library/cl-raspberrypi-iot-remote-monitoring-app/index.html
+https://developer.ibm.com/recipes/tutorials/build-an-iot-bluemix-app-in-node-js-with-sensors-on-raspberry-pi/

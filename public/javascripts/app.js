@@ -37,6 +37,7 @@ app.controller('myController', function($scope, $http) {
                var posting = $http({
                    method: 'POST',
                    url: '/post',
+                   //url: 'https://dkiotappmercury.mybluemix.net/post/',
                    //headers: {'Content-Type': 'application/x-www-form-urlencoded'},
                    headers: {'Content-Type': 'application/json'},
                    data: {"ledControl" : $scope.ledControl},

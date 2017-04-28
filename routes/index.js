@@ -86,16 +86,11 @@ app.post('/post', function (req, res) {
   // Handling the AngularJS post request
   res.setHeader('Content-Type', 'application/json');
   console.log('Client led command = ' + req.body.ledControl);
-  console.log(req.body);
   if (req.body.ledControl == "ON" || req.body.ledControl == "OFF") {
     accessPi("ON",req,res);
-    //setTimeout(function(){sendResponse(req,res);},5000);
-    //sendResponse(req,res);
   } else if (req.body.ledControl == "STATUS") {
     accessPi("STATUS",req,res);
   }
-  //setTimeout(function(){sendResponse(req,res);},400);
-  //sendResponse(req,res);
 });
 
 app.get('/', function (req, res) {
@@ -109,8 +104,5 @@ app.get('/data', function(req,res){
 http.createServer(app).listen(serverPort, function () {
   console.log("Express server listening on port: " +  serverPort);
 })
-
-//This will called everytime the server is running. This is to indicate live status of LED
-//setTimeout(function(){compLoop("GOOG");},200);
 
 module.exports = app;

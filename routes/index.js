@@ -50,10 +50,13 @@ var responseString;
 //open port for communication with cloud or localhost. For localhost port=8000
 var serverPort = process.env.PORT || 8000;
 
-//
+//This function 1) creates an app client with the app config based on IBM Bluemix credentials.
+//2) connects the app client to the cloud. 3) When connected, the app client subscribes to device events and
+//publishes commands to device. 4) When the device event is received it will route the response to AngularJS controller.
 function accessPi(cmd,req,res) {
 
-  if (process.env.VCAP_SERVICES) {
+  //create app config for the app client
+  if (process.env.VCAP_SERVICES) { //if the app is hosted on Bluemix
     var env = JSON.parse(process.env.VCAP_SERVICES);
     appConfig = {
       'org' : env["iotf-service"][0].credentials.org,
@@ -61,7 +64,7 @@ function accessPi(cmd,req,res) {
       'auth-key' : env["iotf-service"][0].credentials.apiKey,
       'auth-token' : env["iotf-service"][0].credentials.apiToken
     }
-  } else {
+  } else { //if the app is hosted on localhost
     appConfig = {
       'org' : 'pm85g2',
       'id' : 'dkiotappmercury',
@@ -70,42 +73,51 @@ function accessPi(cmd,req,res) {
     }
   }
 
+  //create app client based on app config.
   var appClient = new iotf.IotfApplication(appConfig);
   console.log('appClient is configured')
-
-
   console.log('Listening on port : %s', serverPort);
+
+  //connect the app client to cloud
   appClient.connect();
   console.log('appClient is connected')
 
+  //When app client's connection to cloud is established and accessPi is called,
+  //subscribe to or receive device events and publish or send device command
   appClient.on('connect', function() {
     var myData = {};
-    appClient.subscribeToDeviceEvents();
+    appClient.subscribeToDeviceEvents(); //receive events from the device
+    //send command to device with arguments: deviceType, deviceId, command, format, payload.
+    //In this app command = ON or STATUS, payload = empty hash
     appClient.publishDeviceCommand("rasp2monitor","euro001",cmd,"json", myData);
   });
 
+  //When app client receives a device event capture the reponse details and send it to AngularJS controller
   appClient.on('deviceEvent', function(deviceType, deviceId, eventType, format, payload) {
     responseString =  ' Reponse status from Device at ' + new Date().toString() + ' : deviceType= ' + deviceType + ' deviceId= ' +
     deviceId + ' LED Status = ' + JSON.parse(payload).ledStatus;
     console.log('device response = ' + responseString);
+    //send respone to AngularJS controller
     sendResponse(req,res);
   });
 }
-
+//function that converts the JSON object to string and send it to AngularJS controller
 function sendResponse(req,res) {
   res.end(JSON.stringify(responseString));
 }
 
+//
 app.set('port', serverPort);
 app.engine('html', require('ejs').renderFile);
 app.set('view engine', 'html');
 
 app.use(express.static('public'));
+
 //JS client side files has to be placed under a folder by name 'public'
 app.use(bodyParser.json());
+
 //to access the posted data from client using request body
 app.post('/post', function (req, res) {
-
   // Handling the AngularJS post request
   res.setHeader('Content-Type', 'application/json');
   console.log('Client led command = ' + req.body.ledControl);

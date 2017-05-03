@@ -101,16 +101,24 @@ function accessPi(cmd,req,res) {
     sendResponse(req,res);
   });
 }
+
 //function that converts the JSON object to string and send it to AngularJS controller
 function sendResponse(req,res) {
   res.end(JSON.stringify(responseString));
 }
 
-//
+//set the express port variable
 app.set('port', serverPort);
+
+//ejs=embedded javascript. HTML = template (ejs)+ data(renderFile)
 app.engine('html', require('ejs').renderFile);
+
+//default view engine in express is Jade. Changing it to HTML.
 app.set('view engine', 'html');
 
+//tell express to treat public folder as static. Public folder only contains
+//HTML, CSS, client-side javascript (AngularJS). They are all static in the sense they don't change
+//like data.
 app.use(express.static('public'));
 
 //JS client side files has to be placed under a folder by name 'public'
